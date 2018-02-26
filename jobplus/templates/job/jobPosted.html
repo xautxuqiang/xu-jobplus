@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_pagination %}
+
+{% block body %}
+<div class="row">
+  <div class="col-xs-12 col-md-3 company-detail-setlist">
+    <div class="list-group">
+      <div class="page-header">
+        <h4>招聘职位</h4>
+        <a href="{{ url_for('company.job_post', company_id=company_id) }}" class="list-group-item">发布职位</a>
+        <a href="#" class="list-group-item active">已发布职位</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-7">
+    {% for job in pagination.items %}
+    <div class="row job-list">
+      <div class="col-xs-12 col-md-9 job-detail">
+        <h4><a class="job-a" href="{{ url_for('job.job_detail', job_id=job.id) }}">{{ job.job_name }}[{{ job.work_location_district }}]</a>&nbsp;{{ job.created_at }}发布</h4>
+        <p class="job-p">{{ job.salary_low }}-{{ job.salary_high }}k&nbsp;&nbsp;&nbsp;经验{{ job.experience_requirement }}/{{ job.degree_requirement }}</p>
+        <br>
+        {% for tag in job.tag_list %}
+          <span class="label label-primary">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      <div class="col-xs-12 col-md-3 job-modfi">
+        <a href="{{ url_for('company.job_edit', company_id=job.company_info.id, job_id=job.id) }}">
+          <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> 职位信息修改</button>
+        </a>
+      </div>
+    </div>
+    <hr>
+    {% endfor %}
+    {{ render_pagination(pagination, 'company.job_posted') }}
+  </div>
+</div>
+{% endblock %}

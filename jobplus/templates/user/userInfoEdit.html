@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_form1 %}
+
+{% block body %}
+<div class="row">
+  <div class="col-xs-12 col-md-2 user-detail-setlist">
+    <div class="list-group">
+      <div class="page-header">
+        <h4>个人信息</h4>
+        <a href="{{ url_for('user.userinfo', user_id=current_user.id) }}" class="list-group-item">个人信息</a>
+        <a href="{{ url_for('user.userinfo_edit', user_id=current_user.id) }}" class="list-group-item active">个人信息修改</a>
+      </div>
+      <div class="page-header">
+        <h4>密码</h4>
+        <a href="{{ url_for('user.password_edit', user_id=current_user.id) }}" class="list-group-item">修改密码</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-4 user-detail-content">
+      <label>邮箱</label><br>
+      <input class="form-group" type="text" placeholder="{{ current_user.email }}" readonly>
+      {{ render_form1(form, url_for('user.userinfo_edit', user_id=current_user.id)) }}
+  </div>
+</div>
+{% endblock %}

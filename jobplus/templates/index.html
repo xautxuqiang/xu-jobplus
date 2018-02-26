@@ -1,6 +1,67 @@
 {% extends "base.html" %}
 
 {% block body %}
-主页
+<div class="index-bg">
+  <img src="{{ url_for('static', filename='image/indexbg.jpg') }}" alt="主页背景图片" class="img-responsive">
+</div>
+<div class="company-index-list">
+  <div class="page-header">
+    <h4>最新公司</h4>
+  </div>
+  <div class="newest-companys row">
+    {% for company in newest_companys %}
+    <div class="col-xs-5 col-md-3 company">
+    <div class="thumbnail">
+      <a href="{{ url_for('company.company_detail', company_id=company.id) }}">
+        <img src="{{ company.logo }}" alt="企业logo">
+        <div class="company-name">
+          <h4>{{ company.company_name }}</h4>
+        </div>
+      </a>
+      <div class="company-info">
+        <h5>{{ company.field }}/{{ company.finance_stage }}</h5>
+        <p class="company-description">{{ company.description }}</p>
+      </div>
+    </div>
+  </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="job-index-list">
+  <div class="page-header">
+    <h4>最新职位</h4>
+  </div>
+  <div class="newest-jobs row">
+    <div class="col-xs-12 col-md-10">
+    {% for job in newest_jobs %}
+    <div class="row job-list">
+      <div class="col-xs-12 col-md-7 job-detail">
+        <h4><a class="job-a" href="{{ url_for('job.job_detail', job_id=job.id) }}">{{ job.job_name }}[{{ job.work_location_district }}]</a>&nbsp;{{ job.created_at }}发布</h4>
+        <p class="job-p">{{ job.salary_low }}-{{ job.salary_high }}k&nbsp;&nbsp;&nbsp;经验{{ job.experience_requirement }}/{{ job.degree_requirement }}</p>
+        <br>
+        {% for tag in job.tag_list %}
+          <span class="label label-primary">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      <div class="col-xs-12 col-md-5 job-company-detail">
+        <div class="job-company-logo">
+          <a class="job-a" href="{{ url_for('company.company_detail',company_id=job.company_info.id) }}"><img width=70px" height="70px" src="{{ job.company_info.logo }}" alt="公司logo"></a>
+        </div>
+        <div class="job-company-info">
+          <h4><a class="job-a" href="{{ url_for('company.company_detail',company_id=job.company_info.id) }}">{{ job.company_info.company_name }}</a></h4>
+          <p class="job-p">{{ job.company_info.field }}/{{ job.company_info.finance_stage}}</p>
+          <br>
+          {% for tag in job.company_info.tag_list %}
+            <span class="label label-primary">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <hr>
+    {% endfor %}
+    </div>
+  </div>
+</div>
 {% endblock %}
 

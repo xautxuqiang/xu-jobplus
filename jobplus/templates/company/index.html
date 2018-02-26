@@ -1,3 +1,30 @@
 {% extends "base.html" %}
+{% from "macros.html" import render_pagination %}
+
+{% block body %}
+<div class="companybg">
+  <img class="img-responsive" src="{{ url_for('static', filename='image/companybg.jpg') }}" alt="公司页背景图片">
+</div>
+<br><br>
+<div class="row">
+  {% for company in pagination.items %}
+  <div class="col-xs-5 col-md-3 company">
+    <div class="thumbnail">
+      <a href="{{ url_for('company.company_detail', company_id=company.id) }}">
+        <img src="{{ company.logo }}" alt="企业logo">
+        <div class="company-name">
+          <h4>{{ company.company_name }}</h4>
+        </div>
+      </a>
+      <div class="company-info">
+        <h5>{{ company.field }}/{{ company.finance_stage }}</h5>
+        <p class="company-description">{{ company.description }}</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {{ render_pagination(pagination, "company.index") }}
+</div>
+{% endblock %}
 
 

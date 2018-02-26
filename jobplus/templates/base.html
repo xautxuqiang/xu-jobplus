@@ -1,7 +1,106 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Jobplus{% endblock %}</title>
+    {% block head_css %}
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename="css/main.css") }}">
+    {% endblock %}
+</head>
 
-{% block body %}
-{% endblock %}
+<body>
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">                              
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false" >
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{{ url_for('front.index') }}">Jobplus</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('job.index') }}">职位</a></li>
+            <li><a href="{{ url_for('company.index') }}">公司</a></li>
+          </ul>
+          {% if not current_user.is_authenticated  %}
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url_for('front.login') }}">登录</a></li>
+            <li><a href="{{ url_for('front.company_register') }}">公司注册</a></li>
+            <li><a href="{{ url_for('front.user_register') }}">求职者注册</a></li>
+          </ul>
+          {% else %}
+            {% if current_user.is_company %}
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">公司<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="{{ url_for('company.company_detail', company_id=current_user.detail.id) }}">公司主页</a></li>
+                  <li><a href="{{ url_for('company.company_edit', company_id=current_user.detail.id) }}">主页修改</a></li>
+                  <li><a href="{{ url_for('company.job_post', company_id=current_user.detail.id) }}">发布职位</a></li>
+                  <li><a href="{{ url_for('front.logout') }}">注销</a></li>
+                </ul>
+              </li>
+            </ul>
+            {% elif current_user.is_admin %}
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">管理员<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">我的消息</a></li>
+                  <li><a href="{{ url_for('front.logout') }}">注销</a></li>
+                </ul>
+              </li>
+            </ul>
+            {% else %}
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">求职者<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="{{ url_for('user.userinfo', user_id=current_user.id) }}">帐号设置</a></li>
+                  <li><a href="#">我的简历</a></li>
+                  <li><a href="#">简历投递</a></li>
+                  <li><a href="{{ url_for('front.logout') }}">注销</a></li>
+                </ul>
+              </li>
+            </ul>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            {{ message }}
+          </div>
+        {% endfor%}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% block body %}
+    {% endblock %}
+
+    </div>    
+
+    <div width="100% !important" height="auto" class="footer">
+      <p class="footer-p">JobPlus Design By Kevin Xu</p> 
+    </div>
+
+    {% block tail_js %}
+        <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    {% endblock %}
 
 </html>

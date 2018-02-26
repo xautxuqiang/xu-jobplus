@@ -1,0 +1,57 @@
+{% extends "base.html"  %}
+
+{% block body %}
+<div class="company-detail">
+  <div class="company-detail-top">
+    <div class="company-detail-img">
+      <img width="180px" height="180px" src="{{ company.logo }}" />
+    </div>
+    <div class="company-detail-name">
+      <h3><a href="http://{{ company.website }}">{{ company.company_name }}</a></h3>
+      <p>{{ company.description }}</p>
+    </div>
+  </div>
+  <div class="company-detail-bottom">
+    <div class="company-detail-nav">
+      <ul class="nav nav-tabs nav-justified">
+        <li role="presentation" class="active"><a href="#">公司主页</a></li>
+        <li role="presentation"><a href="#">在招职位</a></li>
+      </ul> 
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-md-8 company-detail-desc">
+        <div class="page-header">
+          <h4>公司介绍</h4>
+        </div>
+        <div class="company-detail-introduction">
+          <p>{{ company.company_intro }}</p>
+        </div>
+        <div class="page-header">        
+          <h4>团队介绍</h4>
+        </div>
+        <div class="company-detail-team">
+          <p>{{ company.team_intro }}</p>
+        </div>
+      </div>
+      <div class="col-xs-12 col-md-3 company-detail-sidebar">
+        <div class="page-header">
+          <h4>公司基本信息</h4>
+        </div>
+        <div class="company-detail-basicinfo">
+          <h5 class="basicinfo-list"><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;{{ company.field }}</h5>
+          <h5 class="basicinfo-list"><span class="glyphicon glyphicon-road" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;{{ company.finance_stage }}</h5>
+          <h5 class="basicinfo-list"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;{{ company.scale }}</h5>
+          <h5 class="basicinfo-list"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;{{ company.city }}</h5>
+        </div>
+        <div class="page-header">
+          <h4>公司标签</h4>
+        </div>
+        <div class="company-detail-tags">
+          {% for tag in company.tag_list %}
+            <h4 class="company-detail-tag"><span class="label label-primary">{{ tag }}</span></h4>
+          {% endfor %}
+        </div>
+      </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_form1 %}
+
+{% block body %}
+<div class="row">
+  <div class="col-xs-12 col-md-3 company-detail-setlist">
+    <div class="list-group">
+      <div class="page-header">
+        <h4>图像设置</h4>
+        <a href="{{ url_for('company.company_image_edit', company_id=company_id) }}" class="list-group-item">公司logo</a>
+      </div>
+      <div class="page-header">
+        <h4>基本信息-福利标签</h4>
+        <a href="{{ url_for('company.company_info_edit', company_id=company_id) }}" class="list-group-item">基本信息</a>
+        <a href="{{ url_for('company.company_tags_edit', company_id=company_id) }}" class="list-group-item">福利标签</a>
+      </div>
+      <div class="page-header">
+        <h4>公司及团队介绍</h4>
+        <a href="{{ url_for('company.company_intro_edit',company_id=company_id) }}" class="list-group-item active">公司介绍</a>
+        <a href="{{ url_for('company.team_intro_edit',company_id=company_id) }}" class="list-group-item">团队介绍</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-7">
+    <div class="page-header">
+      <h4 style="text-align:center">公司介绍</h4>
+    </div>
+    {{ render_form1(form, url_for('company.company_intro_edit', company_id=company_id)) }}
+  </div>
+</div>
+{% endblock %}

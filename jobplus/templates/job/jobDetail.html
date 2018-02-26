@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="job-detail-top">
+  <div class="jianli">
+  </div>
+
+  <div class="job-info">
+    <h1>{{ job.job_name }}</h1>
+    <h3>{{ job.salary_low}}k-{{ job.salary_high }}k/{{ job.work_location_city }}/经验{{ job.experience_requirement }}/{{ job.degree_requirement }}及以上/{% if job.is_fulltime %}全职{% else %}实习{% endif %}</h3>
+    {% for tag in job.tag_list %}
+      <span class="label label-primary">{{ tag }}</span>
+    {% endfor %}
+    <br><br>
+    <p>{{ job.created_at }} 发布于jobplus</p>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-xs-12 col-md-9">
+    <div class="page-header">
+      <h4>职位描述</h4>
+    </div>
+    <p>{{ job.job_description }}</p>
+    <hr>
+    <div class="page-header">
+      <h4>职位要求</h4>
+    </div>
+    <p>{{ job.job_requirement }}</p>
+    <hr>
+    <div class="page-header">
+      <h4>工作地址</h4>
+    </div>
+    <p>{{ job.work_location_city }}-{{ job.work_location_district }}-{{ job.work_location_address }}</p>
+    <hr>
+  </div>
+  <div class="col-xs-12 col-md-3">
+    <div class="job-company-logo1">
+      <img width="150px" height="150px" src="{{ job.company_info.logo }}" alt="职位对应的企业logo">
+    </div>
+    <h3>{{ job.company_info.company_name }}</h3>
+    <hr>
+    <div class="job-company-basicinfo">
+        <h5 class="basicinfo-list"><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;{{ job.company_info.field }}</h5>
+        <h5 class="basicinfo-list"><span class="glyphicon glyphicon-road" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;{{ job.company_info.finance_stage }}</h5>
+        <h5 class="basicinfo-list"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;{{ job.company_info.scale }}</h5>
+        <h5 class="basicinfo-list"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;{{ job.company_info.website }}</h5>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

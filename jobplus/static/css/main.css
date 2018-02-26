@@ -1,0 +1,101 @@
+.login-title {
+  padding-left: 45%;
+}
+.image-button,.userinfo {
+  text-align: center;
+}
+.company img {
+  height: 80px !important;
+}
+.company {
+  box-shadow: 5px 5px 8px #888888;
+}
+.company-name,.company-info,.nav-pagination {
+  text-align: center;
+}
+.company-description {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+a,
+a:hover,
+a:visited {
+  text-decoration: none !important;
+}
+a
+{
+  color: #000000;
+}
+a:hover, a.job-a {
+  color: #009966;
+}
+.company-detail-top {
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-top: 20px;
+  height: 180px;
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: 5px 5px 3px #888888;
+}
+.company-detail-bottom {
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-top: 5px;
+}
+.company-detail-desc {
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: 5px 5px 3px #888888;
+  margin-left: 14px;
+}
+.company-detail-basicinfo {
+  padding-left: 20px;
+}
+.basicinfo-list {
+  padding-bottom: 15px;
+}
+.company-detail-img {
+  float: left;
+  padding-right: 30px;
+}
+.company-detail-tag {
+  display: inline-block;
+}
+.company-detail-setlist,.user-detail-setlist {
+  margin-left: 100px;
+}
+.user-detail-content {
+  margin-top: 40px;
+}
+.job-list {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  box-shadow: 10px 10px 5px #888888;
+}
+.job-company-logo {
+  float:right;
+}
+.job-detail-top {
+  box-shadow: 10px 10px 5px #888888;
+  padding: 10px 0px 10px 0px;
+}
+p.job-p {
+  font-size: 15px;
+}
+a.job-modfi {
+  text-align: center;  
+}
+.footer {
+  background-color: #99CCCC;
+  padding: 50px 100px 50px 100px;
+  margin-top: 50px;
+}
+p.footer-p {
+  text-align:center;
+  font-size: 15px;
+}
+.login-index {
+  padding-bottom: 100px;  
+}
