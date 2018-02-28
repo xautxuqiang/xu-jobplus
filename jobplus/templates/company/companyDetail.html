@@ -14,8 +14,8 @@
   <div class="company-detail-bottom">
     <div class="company-detail-nav">
       <ul class="nav nav-tabs nav-justified">
-        <li role="presentation" class="active"><a href="#">公司主页</a></li>
-        <li role="presentation"><a href="#">在招职位</a></li>
+        <li role="presentation" class="active"><a href="{{ url_for('company.company_detail', company_id=company.id) }}">公司主页</a></li>
+        <li role="presentation"><a href="{{ url_for('company.company_job_avaliable', company_id=company.id) }}">在招职位</a></li>
       </ul> 
     </div>
     <div class="row">

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, current_app, redirect, url_for, current_app, flash
-from jobplus.models import CompanyInfo, db, User, Job
+from jobplus.models import CompanyInfo, db, User, Job, Delivery
 from werkzeug.utils import secure_filename
 import os
 from jobplus.forms import CompanyInfoForm, CompanyIntroForm, TeamIntroForm, TagsForm, JobPostForm
@@ -10,7 +10,7 @@ company = Blueprint('company', __name__, url_prefix='/company')
 @company.route('/')
 def index():
     page = request.args.get('page', default=1, type=int)
-    pagination = CompanyInfo.query.paginate(
+    pagination = CompanyInfo.query.order_by(CompanyInfo.created_at.desc()).paginate(
         page = page,
         per_page = current_app.config['COMPANY_PER_PAGE'],
         error_out = False
@@ -23,6 +23,18 @@ def index():
 def company_detail(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
     return render_template('company/companyDetail.html', company=company)
+
+#公司在招职位
+@company.route('/<int:company_id>/jobavaliable')
+def company_job_avaliable(company_id):
+    company = CompanyInfo.query.get_or_404(company_id)
+    page = request.args.get('page', default=1, type=int)
+    pagination = Job.query.filter_by(company_id=company_id).paginate(
+            page = page,
+            per_page = 10,
+            error_out = False
+    )
+    return render_template('company/jobAvaliable.html', company=company, pagination=pagination)
 
 #修改公司信息
 @company.route('/<int:company_id>/companyedit')
@@ -179,3 +191,116 @@ def job_edit(company_id, job_id):
         flash(u"修改该职位成功",'success')
         return redirect(url_for('company.job_posted', company_id=company_id))
     return render_template('job/jobEdit.html', form=form, company_id=company_id, job_id=job_id)
+
+#删除已发布职位
+@company.route('/<int:company_id>/jobdelete/<int:job_id>', methods=['GET', 'POST'])
+def job_delete(company_id, job_id):
+    job = Job.query.get_or_404(job_id)
+    try:
+        db.session.delete(job)
+        db.session.commit()
+    except:
+        db.rollback()
+        flash(u'删除该职位失败', 'warning')
+        return redirect(url_for('company.job_delete', company_id=company_id, job_id=job_id))
+    else:
+        flash(u'删除该职位成功', 'success')
+        return redirect(url_for('company.job_posted', company_id=company_id))
+        
+
+#公司接收到的所有简历投递
+@company.route('/<int:company_id>/companyresume', methods=['GET', 'POST'])
+def company_resume(company_id):
+    company = CompanyInfo.query.get_or_404(company_id)
+    page = request.args.get('page', default=1, type=int)
+    pagination = Delivery.query.filter_by(company_id=company_id).order_by(Delivery.created_at.desc()).paginate(
+        page = page,
+        per_page = 10,
+        error_out = False
+    )
+    return render_template('company/companyResume.html', company_id=company_id, pagination=pagination) 
+
+#公司拒绝的简历投递
+@company.route('/<int:company_id>/companyresumereject', methods=['GET', 'POST'])
+def company_resume_reject(company_id):
+    company = CompanyInfo.query.get_or_404(company_id)
+    page = request.args.get('page', default=1, type=int)
+    pagination = Delivery.query.filter_by(company_id=company_id, status=Delivery.STATUS_REJECT).order_by(Delivery.created_at.desc()).paginate(
+        page = page,
+        per_page = 10,
+        error_out = False
+    )
+    return render_template('company/companyResumeReject.html', company_id=company_id, pagination=pagination)
+
+#拒绝某简历
+@company.route('/<int:company_id>/company/<int:job_id>/job/<int:user_id>/reject', methods=['GET', 'POST'])
+def company_reject_resume(company_id, job_id, user_id):
+    d = Delivery.query.filter_by(company_id=company_id, job_id=job_id, user_id=user_id).first_or_404()    
+    d.status = Delivery.STATUS_REJECT
+    try:
+        db.session.add(d)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        flash(u'拒绝操作失败', 'warning')
+        return redirect(url_for('company.company_reject_resume', company_id=company_id, job_id=job_id, user_id=user_id))
+    else:
+        flash(u'拒绝操作成功', 'success')
+        return redirect(url_for('company.company_resume_reject', company_id=company_id))
+
+#公司确认接收的简历投递
+@company.route('/<int:company_id>/companyresumeaccept', methods=['GET', 'POST'])
+def company_resume_accept(company_id):
+    company = CompanyInfo.query.get_or_404(company_id)
+    page = request.args.get('page', default=1, type=int)
+    pagination = Delivery.query.filter_by(company_id=company_id, status=Delivery.STATUS_ACCEPT).order_by(Delivery.created_at.desc()).paginate(
+        page = page,
+        per_page = 10,
+        error_out = False
+    )
+    return render_template('company/companyResumeAccept.html', company_id=company_id, pagination=pagination)
+
+#接收某简历
+@company.route('/<int:company_id>/company/<int:job_id>/job/<int:user_id>/accept', methods=['GET', 'POST'])
+def company_accept_resume(company_id, job_id, user_id):
+    d = Delivery.query.filter_by(company_id=company_id, job_id=job_id, user_id=user_id).first_or_404()
+    d.status = Delivery.STATUS_ACCEPT
+    try:
+        db.session.add(d)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        flash(u'接收操作失败', 'warning')
+        return redirect(url_for('company.company_accept_resume', company_id=company_id, job_id=job_id, user_id=user_id))
+    else:
+        flash(u'接收操作成功', 'success')
+        return redirect(url_for('company.company_resume_accept', company_id=company_id))
+
+#简历成功状态
+@company.route('/<int:company_id>/companyresumesuccess', methods=['GET', 'POST'])
+def company_resume_success(company_id):
+    company = CompanyInfo.query.get_or_404(company_id)
+    page = request.args.get('page', default=1, type=int)
+    pagination = Delivery.query.filter_by(company_id=company_id, status=Delivery.STATUS_SUCCESS).order_by(Delivery.created_at.desc()).paginate(
+        page = page,
+        per_page = 10,
+        error_out = False
+    )
+    return render_template('company/companyResumeSuccess.html', company_id=company_id, pagination=pagination)
+
+#录取简历
+#接收某简历
+@company.route('/<int:company_id>/company/<int:job_id>/job/<int:user_id>/success', methods=['GET', 'POST'])
+def company_success_resume(company_id, job_id, user_id):
+    d = Delivery.query.filter_by(company_id=company_id, job_id=job_id, user_id=user_id).first_or_404()
+    d.status = Delivery.STATUS_SUCCESS
+    try:
+        db.session.add(d)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        flash(u'录取操作失败', 'warning')
+        return redirect(url_for('company.company_success_resume', company_id=company_id, job_id=job_id, user_id=user_id))
+    else:
+        flash(u'录取操作成功', 'success')
+        return redirect(url_for('company.company_resume_success', company_id=company_id))

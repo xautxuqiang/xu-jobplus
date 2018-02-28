@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField, ValidationError, SelectField
+from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField, ValidationError, SelectField, DateTimeField
 from wtforms.validators import DataRequired, EqualTo, Length, Email
 from jobplus.models import db, User, CompanyInfo, Job
 
@@ -207,3 +207,29 @@ class JobPostForm(FlaskForm):
         db.session.add(job)
         db.session.commit()
         return job 
+
+#创建在线简历工作修改表单
+class ResumeOnlineJobEditForm(FlaskForm):
+    company = StringField(u'公司名', validators=[DataRequired(),Length(1,32)])
+    company_job = StringField(u'职位', validators=[DataRequired(), Length(1,32)])
+    begin_at = DateTimeField(u'始于', validators=[DataRequired()])
+    end_at = DateTimeField(u'结束于', validators=[DataRequired()])
+    description = TextAreaField(u'描述',validators=[DataRequired()])
+
+#创建在线简历教育修改表单
+class ResumeOnlineEduEditForm(FlaskForm):
+    school = StringField(u'学校', validators=[DataRequired()])
+    specialty = StringField(u'专业', validators=[DataRequired()])
+    degree = StringField(u'学历', validators=[DataRequired()])
+    begin_at = DateTimeField(u'始于', validators=[DataRequired()])
+    end_at = DateTimeField(u'结束于', validators=[DataRequired()])
+    description = TextAreaField(u'描述',validators=[DataRequired()])
+
+#创建在线简历项目修改表单
+class ResumeOnlineProEditForm(FlaskForm):
+    name = StringField(u'项目名称', validators=[DataRequired()])
+    role = StringField(u'项目角色', validators=[DataRequired()])
+    begin_at = DateTimeField(u'始于', validators=[DataRequired()])
+    end_at = DateTimeField(u'结束于', validators=[DataRequired()])
+    description = TextAreaField(u'描述',validators=[DataRequired()])
+

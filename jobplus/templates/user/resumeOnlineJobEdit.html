@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="row job-posted-page">
+  <div class="col-xs-12 col-md-2 user-detail-setlist">
+    <div class="list-group">
+      <div class="page-header">
+        <h4>在线简历</h4>
+        <a href="{{ url_for('user.resume_online', user_id=user_id) }}" class="list-group-item">查看</a>
+        <a href="{{ url_for('user.resume_online_edit', user_id=user_id) }}" class="list-group-item active">修改</a>
+      </div>
+      <div class="page-header">
+        <h4>附件简历</h4>
+        <a href="#" class="list-group-item">查看</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-4 user-detail-content">
+    <ul class="nav nav-tabs">
+      <li role="presentation" class="active"><a href="#">工作经历</a></li>
+      <li role="presentation"><a href="#">教育经历</a></li>
+      <li role="presentation"><a href="#">项目经历</a></li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

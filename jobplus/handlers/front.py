@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, flash, url_for, redirect
 from jobplus.forms import LoginForm, UserRegisterForm, CompanyRegisterForm
-from jobplus.models import db, User, CompanyInfo, Job
+from jobplus.models import db, User, CompanyInfo, Job, Resume, JobExperience, EduExperience, ProjectExperience
 from flask_login import login_user, login_required, logout_user
 
 front = Blueprint('front', __name__)

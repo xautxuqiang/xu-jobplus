@@ -2,8 +2,29 @@
 
 {% block body %}
 <div class="job-detail-top">
+  {% if current_user.is_user %}
   <div class="jianli">
+    <form method="POST" action="{{ url_for('job.job_detail', job_id=job.id) }}">
+      {% if has_been_delivered %}
+      <div class="form-group">
+        <input class="btn btn-primary" id="submit" name="submit" disabled="disabled" type="submit" value="已投递">
+      </div>
+      {% else %}
+      <div class="form-group">
+        <input class="btn btn-primary" id="submit" name="submit" type="submit" value="投递">
+      </div>
+      {% endif %}
+      <div class="form-group">
+        <label class="radio-inline">
+          <input type="radio" name="resumeRadio" id="resumeRadio1" value="1" checked>附件简历
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="resumeRadio" id="resumeRadio2" value="0">在线简历
+        </label>
+      </div>
+    </form>
   </div>
+  {% endif %}
 
   <div class="job-info">
     <h1>{{ job.job_name }}</h1>

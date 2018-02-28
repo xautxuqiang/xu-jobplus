@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash
 from flask_login import current_user
-from jobplus.models import User, db
+from jobplus.models import User, db, Job, CompanyInfo, Delivery, Resume
 from werkzeug.utils import secure_filename
 import os
-from jobplus.forms import UserInfoForm, PasswordEditForm
+from jobplus.forms import UserInfoForm, PasswordEditForm, ResumeOnlineJobEditForm, ResumeOnlineEduEditForm, ResumeOnlineProEditForm
 
 user = Blueprint('user', __name__, url_prefix='/user')
 
@@ -38,6 +38,7 @@ def userinfo(user_id):
            return redirect(url_for('user.userinfo', user_id=current_user.id))
     return render_template('user/userInfo.html', user=user)
 
+#用户信息修改
 @user.route('/<int:user_id>/userinfoedit', methods=['GET', 'POST'])
 def userinfo_edit(user_id):
     user = User.query.get_or_404(user_id)
@@ -55,6 +56,7 @@ def userinfo_edit(user_id):
             return redirect(url_for('user.userinfo', user_id=user_id))
     return render_template('user/userInfoEdit.html', form=form)
 
+#用户密码修改
 @user.route('/<int:user_id>/passwordedit', methods=['GET', 'POST'])
 def password_edit(user_id):
     form = PasswordEditForm()
@@ -68,7 +70,73 @@ def password_edit(user_id):
         return redirect(url_for('user.password_edit', user_id=user_id))
     return render_template('user/passwordEdit.html', form=form)
 
+#用户在线简历查看
+@user.route('/<int:user_id>/resumeonlinesee', methods=['GET', 'POST'])
+def resume_online(user_id):
+    return render_template('user/resumeOnline.html', user_id=user_id)
 
-@user.route('/<int:user_id>/resume', methods=['GET', 'POST'])
-def resume(user_id):
-    return render_template('user/resume.html')
+#用户在线简历修改
+@user.route('/<int:user_id>/resumeonlineedit')
+def resume_online_edit(user_id):
+    return redirect(url_for('user.resume_online_jobedit', user_id=user_id))
+
+#用户在线简历工作经验修改
+@user.route('/<int:user_id>/resumeonlinejobedit', methods=['GET', 'POST'])
+def resume_online_jobedit(user_id):
+    user = User.query.get(user_id)
+    resume = Resume.query.filter_by(user_id=user_id).first()
+    jobexp = resume.job_experience
+    form = ResumeOnlineJobEditForm(obj=jobexp)
+    if form.validate_on_submit():
+        pass
+    return render_template('user/resumeOnlineJobEdit.html', user_id=user_id)
+
+#用户的所有简历投递
+@user.route('/<int:user_id>/resumedelivery')
+def resume_delivery(user_id):
+    user = User.query.get_or_404(user_id)
+    page = request.args.get('page', default=1, type=int)
+    pagination = Delivery.query.filter_by(user_id=user.id).order_by(Delivery.created_at.desc()).paginate(
+        page = page,
+        per_page = 10,
+        error_out = False
+    )
+    return render_template('user/resumeDelivery.html', user_id=user_id, pagination=pagination) 
+
+#用户被接受的简历投递
+@user.route('/<int:user_id>/resumeaccept')
+def resume_accept(user_id):
+    user = User.query.get_or_404(user_id)
+    page = request.args.get('page', default=1, type=int)
+    pagination = Delivery.query.filter_by(user_id=user.id, status=Delivery.STATUS_ACCEPT).order_by(Delivery.created_at.desc()).paginate(
+        page = page,
+        per_page = 10,
+        error_out = False
+    )
+    return render_template('user/resumeAccept.html', user_id=user_id, pagination=pagination)
+
+#用户被拒绝的简历投递
+@user.route('/<int:user_id>/resumereject')
+def resume_reject(user_id):
+    user = User.query.get_or_404(user_id)
+    page = request.args.get('page', default=1, type=int)
+    pagination = Delivery.query.filter_by(user_id=user.id, status=Delivery.STATUS_REJECT).order_by(Delivery.created_at.desc()).paginate(
+        page = page,
+        per_page = 10,
+        error_out = False
+    )
+    return render_template('user/resumeReject.html', user_id=user_id, pagination=pagination)
+
+#用户被录取的简历投递
+@user.route('/<int:user_id>/resumesuccess')
+def resume_success(user_id):
+    user = User.query.get_or_404(user_id)
+    page = request.args.get('page', default=1, type=int)
+    pagination = Delivery.query.filter_by(user_id=user.id, status=Delivery.STATUS_SUCCESS).order_by(Delivery.created_at.desc()).paginate(
+        page = page,
+        per_page = 10,
+        error_out = False
+    )
+    return render_template('user/resumeSuccess.html', user_id=user_id, pagination=pagination)
+
+

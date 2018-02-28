@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_pagination %}
+
+{% block body %}
+<div class="row job-posted-page">
+  <div class="col-xs-12 col-md-2 user-detail-setlist">
+    <div class="list-group">
+      <div class="page-header">
+        <h4>简历投递</h4>
+        <a href="{{ url_for('user.resume_delivery', user_id=user_id) }}" class="list-group-item">所有投递</a>
+        <a href="{{ url_for('user.resume_accept', user_id=user_id) }}" class="list-group-item active">已接收</a>
+        <a href="{{ url_for('user.resume_reject', user_id=user_id) }}" class="list-group-item">被拒绝</a>
+        <a href="{{ url_for('user.resume_success', user_id=user_id) }}" class="list-group-item">被录取</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-8 user-detail-content">
+    {% for delivery in pagination.items %}
+      <div class="row job-list">
+        <div class="col-xs-12 col-md-7 job-detail">
+          <h4><a class="job-a" href="{{ url_for('job.job_detail', job_id=delivery.job.id) }}">{{ delivery.job.job_name }}[{{ delivery.job.work_location_district }}]</a>&nbsp;{{ delivery.job.created_at }}发布</h4>
+          <p class="job-p">{{ delivery.job.salary_low }}-{{ delivery.job.salary_high }}k&nbsp;&nbsp;&nbsp;经验{{ delivery.job.experience_requirement }}/{{ delivery.job.degree_requirement }}</p>
+          <br>
+          {% for tag in delivery.job.tag_list %}
+            <span class="label label-primary">{{ tag }}</span>
+          {% endfor %}
+          <br>
+        </div>
+        <div class="col-xs-12 col-md-5 job-company-detail">
+          <div class="job-company-logo">
+            <a class="job-a" href="{{ url_for('company.company_detail',company_id=delivery.company.id) }}"><img width=70px" height="70px" src="{{ delivery.company.logo }}" alt="公司logo"></a>
+          </div>
+          <div class="job-company-info">
+            <h4><a class="job-a" href="{{ url_for('company.company_detail',company_id=delivery.company.id) }}">{{ delivery.company.company_name }}</a></h4>
+            <p class="job-p">{{ delivery.company.field }}/{{ delivery.company.finance_stage}}</p>
+            <br>
+            {% for tag in delivery.company.tag_list %}
+              <span class="label label-primary">{{ tag }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <hr>
+    {% endfor %}
+    {{ render_pagination(pagination, 'user.resume_delivery') }}
+  </div>
+</div>
+{% endblock %}

@@ -79,7 +79,7 @@ a:hover, a.job-a {
 }
 .job-detail-top {
   box-shadow: 10px 10px 5px #888888;
-  padding: 10px 0px 10px 0px;
+  padding: 10px 50px 10px 0px;
 }
 p.job-p {
   font-size: 15px;
@@ -96,6 +96,14 @@ p.footer-p {
   text-align:center;
   font-size: 15px;
 }
-.login-index {
+.login-index, .job-posted-page {
   padding-bottom: 100px;  
+}
+.jianli {
+  padding-top: 50px;
+  float: right;
+}
+.resume-button {
+  margin-top: 10px;
+  text-align: center;
 }

@@ -43,6 +43,7 @@
                   <li><a href="{{ url_for('company.company_detail', company_id=current_user.detail.id) }}">公司主页</a></li>
                   <li><a href="{{ url_for('company.company_edit', company_id=current_user.detail.id) }}">主页修改</a></li>
                   <li><a href="{{ url_for('company.job_post', company_id=current_user.detail.id) }}">发布职位</a></li>
+                  <li><a href="{{ url_for('company.company_resume', company_id=current_user.detail.id) }}">简历接收</a></li>
                   <li><a href="{{ url_for('front.logout') }}">注销</a></li>
                 </ul>
               </li>
@@ -63,8 +64,8 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">求职者<span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   <li><a href="{{ url_for('user.userinfo', user_id=current_user.id) }}">帐号设置</a></li>
-                  <li><a href="#">我的简历</a></li>
-                  <li><a href="#">简历投递</a></li>
+                  <li><a href="{{ url_for('user.resume_online', user_id=current_user.id) }}">我的简历</a></li>
+                  <li><a href="{{ url_for('user.resume_delivery', user_id=current_user.id) }}">简历投递</a></li>
                   <li><a href="{{ url_for('front.logout') }}">注销</a></li>
                 </ul>
               </li>

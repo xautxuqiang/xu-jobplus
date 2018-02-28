@@ -49,6 +49,8 @@ class User(Base, UserMixin):
     collect_jobs = db.relationship('Job', secondary=user_job, lazy='subquery', backref=db.backref('users', lazy=True))
     #求职者和简历一对一关系
     resume = db.relationship('Resume', uselist=False)
+    #选择在线简历还是附件简历,1为在线,0为附件
+    resume_mode = db.Column(db.Integer, default=1)
 
     #密码属性
     @property
@@ -85,7 +87,7 @@ class Resume(Base):
     #简历和求职者一对一关系
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', uselist=False)
-    job_experiences = db.relationship('JobExperience')
+    job_experience = db.relationship('JobExperience')
     edu_experience = db.relationship('EduExperience')
     project_experience = db.relationship('ProjectExperience')
 
@@ -102,8 +104,8 @@ class JobExperience(Experience):
     __tablename__ = 'job_experience'
 
     #公司，职位
-    company = db.Column(db.String(32), nullable=False)
-    company_job = db.Column(db.String(32), nullable=False)
+    company = db.Column(db.String(32), nullable=False, default='')
+    company_job = db.Column(db.String(32), nullable=False, default='')
     resume_id = db.Column(db.Integer, db.ForeignKey('resume.id'))
     resume = db.relationship('Resume', uselist=False)
 
@@ -111,10 +113,10 @@ class JobExperience(Experience):
 class EduExperience(Experience):
     __tablename__ = 'edu_experience'
 
-    school = db.Column(db.String(32), nullable=False)
+    school = db.Column(db.String(32), nullable=False, default='')
     #专业
-    specialty = db.Column(db.String(32), nullable=False)
-    degree = db.Column(db.String(16))
+    specialty = db.Column(db.String(32), nullable=False, default='')
+    degree = db.Column(db.String(16), default='')
     resume_id = db.Column(db.Integer, db.ForeignKey('resume.id'))
     resume = db.relationship('Resume', uselist=False)
 
@@ -122,9 +124,9 @@ class EduExperience(Experience):
 class ProjectExperience(Experience):
     __tablename__ = 'project_experience'
 
-    name = db.Column(db.String(32), nullable=False)
+    name = db.Column(db.String(32), nullable=False, default='')
     #项目中的角色
-    role = db.Column(db.String(32))
+    role = db.Column(db.String(32), default='')
     resume_id = db.Column(db.Integer, db.ForeignKey('resume.id'))
     resume = db.relationship('Resume', uselist=False)
 
@@ -171,7 +173,7 @@ class Job(Base):
         return self.tags.split(',')
 
     def __repr__(self):
-        return '<Job {}>'.format(self.job_title)
+        return '<Job {}>'.format(self.job_name)
 
 #企业表
 class CompanyInfo(Base):
@@ -212,3 +214,36 @@ class CompanyInfo(Base):
 
     def __repr__(self):
         return '<Comapny {}>'.format(self.company_name)
+
+#投递表
+class Delivery(Base):
+    __tablename__ = 'delivery'
+
+    #待接收
+    STATUS_WAITING = 1
+    #被拒绝
+    STATUS_REJECT = 2
+    #已接收,待面试
+    STATUS_ACCEPT = 3
+    #录取
+    STATUS_SUCCESS = 4
+
+    id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer, db.ForeignKey('job.id', ondelete='SET NULL'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
+    company_id = db.Column(db.Integer, db.ForeignKey('company_info.id', ondelete='SET NULL'))
+    status = db.Column(db.SmallInteger, default=STATUS_WAITING)
+    response = db.Column(db.String(256))
+
+    @property
+    def user(self):
+        return User.query.get(self.user_id)
+
+    @property
+    def job(self):
+        return Job.query.get(self.job_id)
+
+    @property
+    def company(self):
+        return CompanyInfo.query.get(self.company_id)
+

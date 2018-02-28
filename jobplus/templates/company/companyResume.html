@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_pagination %}
+
+{% block body %}
+<div class="row job-posted-page">
+  <div class="col-xs-12 col-md-2 user-detail-setlist">
+    <div class="list-group">
+      <div class="page-header">
+        <h4>接收的简历</h4>
+        <a href="{{ url_for('company.company_resume', company_id=company_id) }}" class="list-group-item active">所有投递</a>
+        <a href="{{ url_for('company.company_resume_accept', company_id=company_id) }}" class="list-group-item">已接收</a>
+        <a href="{{ url_for('company.company_resume_reject', company_id=company_id) }}" class="list-group-item">被拒绝</a>
+        <a href="{{ url_for('company.company_resume_success', company_id=company_id) }}" class="list-group-item">被录取</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-8 user-detail-content">
+    {% for delivery in pagination.items %}
+      <div class="row job-list">
+        <div class="col-xs-12 col-md-7 job-detail">
+          <h4><a class="job-a" href="{{ url_for('job.job_detail', job_id=delivery.job.id) }}">{{ delivery.job.job_name }}[{{ delivery.job.work_location_district }}]</a>&nbsp;{{ delivery.job.created_at }}发布</h4>
+          <p class="job-p">{{ delivery.job.salary_low }}-{{ delivery.job.salary_high }}k&nbsp;&nbsp;&nbsp;经验{{ delivery.job.experience_requirement }}/{{ delivery.job.degree_requirement }}</p>
+          <br>
+          {% for tag in delivery.job.tag_list %}
+            <span class="label label-primary">{{ tag }}</span>
+          {% endfor %}
+          <br>
+        </div>
+        <div class="col-xs-12 col-md-5 job-company-detail">
+          <div class="job-company-logo">
+            <a class="job-a" href="{{ url_for('user.userinfo',user_id=delivery.user.id) }}"><img width=70px" height="70px" src="{{ delivery.user.logo }}" alt="公司logo"></a>
+          </div>
+          <div class="job-company-info">
+            <h4><a class="job-a" href="{{ url_for('user.userinfo',user_id=delivery.user.id) }}">{{ delivery.user.nickname }}</a></h4>
+            <p class="job-p">Email: {{ delivery.user.email }}</p>
+            <a href="#"><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> 查看该求职者简历</button></a>
+          </div>
+        </div>
+        <div class="clearfix visible-xs"></div>
+        <br>
+        <div class="col-xs-12 col-md-12 resume-button">
+          <div class="col-xs-12 col-md-4">
+            <a href="{{ url_for('company.company_reject_resume', company_id=delivery.company.id, job_id=delivery.job.id, user_id=delivery.user.id) }}"><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> 不合适</button></a>
+          </div>
+          <div class="col-xs-12 col-md-4">
+            <a href="{{ url_for('company.company_accept_resume', company_id=delivery.company.id, job_id=delivery.job.id, user_id=delivery.user.id) }}"><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span> 接收</button></a>
+          </div>
+          <div class="col-xs-12 col-md-4">
+            <a href="{{ url_for('company.company_success_resume', company_id=delivery.company.id, job_id=delivery.job.id, user_id=delivery.user.id) }}"><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span> 录取</button></a>
+          </div>
+        </div>
+      </div>
+      <hr>
+    {% endfor %}
+    {{ render_pagination(pagination, 'user.resume_delivery') }}
+  </div>
+</div>
+{% endblock %}
