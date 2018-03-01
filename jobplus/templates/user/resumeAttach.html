@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="row job-posted-page">
+  <div class="col-xs-12 col-md-2 user-detail-setlist">
+    <div class="list-group">
+      <div class="page-header">
+        <h4>在线简历</h4>
+        <a href="{{ url_for('user.resume_online', user_id=user_id) }}" class="list-group-item">查看</a>
+        <a href="{{ url_for('user.resume_online_edit', user_id=user_id) }}" class="list-group-item">修改</a>
+      </div>
+      <div class="page-header">
+        <h4>附件简历</h4>
+        <a href="{{ url_for('user.resume_attach', user_id=user_id) }}" class="list-group-item active">查看</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-4 user-detail-content">
+    <div class="page-header">
+      <h4>当前简历</h4>
+    </div>
+    <div class="resume-see">
+      {% if user.resume_url %}
+        <a href="{{ user.resume_url }}">
+          <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> 点我查看简历
+          </button>
+        </a>
+      {% else %}
+        <button type="button" class="btn btn-default">
+          <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> 无附件简历
+        </button>
+      {% endif %}
+    </div>
+    <div class="page-header">
+      <h4>修改附件简历</h4>
+    </div>
+    <div>
+      <form method=post enctype=multipart/form-data>
+         <input type=file name=file style="display:inline-block"><hr><input type=submit value="更新">
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

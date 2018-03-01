@@ -10,6 +10,8 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     #用户图片存储位置
     USER_LOGO_FOLDER = '/home/xu/xu-jobplus/jobplus/static/user' 
+    #用户简历存储位置
+    USER_RESUME_FOLDER = '/home/xu/xu-jobplus/jobplus/static/resume'
     #公司图片存储位置
     COMPANY_LOGO_FOLDER = '/home/xu/xu-jobplus/jobplus/static/company'
     #每页公司的数目

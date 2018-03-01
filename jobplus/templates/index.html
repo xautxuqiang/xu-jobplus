@@ -6,10 +6,10 @@
 </div>
 <div class="company-index-list">
   <div class="page-header">
-    <h4>最新公司</h4>
+    <h4>热门公司</h4>
   </div>
   <div class="newest-companys row">
-    {% for company in newest_companys %}
+    {% for company in hot_companys %}
     <div class="col-xs-5 col-md-3 company">
     <div class="thumbnail">
       <a href="{{ url_for('company.company_detail', company_id=company.id) }}">
@@ -30,11 +30,11 @@
 
 <div class="job-index-list">
   <div class="page-header">
-    <h4>最新职位</h4>
+    <h4>热门职位</h4>
   </div>
   <div class="newest-jobs row">
     <div class="col-xs-12 col-md-10">
-    {% for job in newest_jobs %}
+    {% for job in hot_jobs %}
     <div class="row job-list">
       <div class="col-xs-12 col-md-7 job-detail">
         <h4><a class="job-a" href="{{ url_for('job.job_detail', job_id=job.id) }}">{{ job.job_name }}[{{ job.work_location_district }}]</a>&nbsp;{{ job.created_at }}发布</h4>

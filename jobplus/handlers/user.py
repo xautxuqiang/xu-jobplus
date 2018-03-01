@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash
+from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash, abort
 from flask_login import current_user
 from jobplus.models import User, db, Job, CompanyInfo, Delivery, Resume
 from werkzeug.utils import secure_filename
@@ -15,6 +15,8 @@ def allowed_file(filename):
 @user.route('/<int:user_id>/userinfo', methods=['GET', 'POST'])
 def userinfo(user_id):
     user = User.query.get_or_404(user_id)
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
     if request.method == 'POST':
        if 'file' not in request.files:
            flash(u'没有文件')
@@ -42,6 +44,8 @@ def userinfo(user_id):
 @user.route('/<int:user_id>/userinfoedit', methods=['GET', 'POST'])
 def userinfo_edit(user_id):
     user = User.query.get_or_404(user_id)
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
     form = UserInfoForm(obj=user)
     if form.validate_on_submit():
         user.nickname = form.nickname.data
@@ -59,8 +63,10 @@ def userinfo_edit(user_id):
 #用户密码修改
 @user.route('/<int:user_id>/passwordedit', methods=['GET', 'POST'])
 def password_edit(user_id):
-    form = PasswordEditForm()
     user = User.query.get_or_404(user_id)
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
+    form = PasswordEditForm()
     if form.validate_on_submit():
         if user.check_password(form.currentPassword.data):
             form.update_password(user)
@@ -69,6 +75,45 @@ def password_edit(user_id):
             flash(u"原密码错误", 'danger')
         return redirect(url_for('user.password_edit', user_id=user_id))
     return render_template('user/passwordEdit.html', form=form)
+
+#############################################
+ALLOWED_PDF = set(['pdf'])
+
+def allowed_pdf(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_PDF
+
+#用户附件简历查看
+@user.route('/<int:user_id>/resumeattach', methods=['GET', 'POST'])
+def resume_attach(user_id):
+    user = User.query.get_or_404(user_id)
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
+    if request.method == 'POST':
+       if 'file' not in request.files:
+           flash(u'没有文件', 'warning')
+           return redirect(request.url)
+       file = request.files['file']
+       if file.filename == '':
+           flash(u'没有选择的文件', 'warning')
+           return redirect(request.url)
+       if file and allowed_pdf(file.filename):
+           file_type = file.filename.rsplit('.', 1)[1]
+           file_name = file.filename.rsplit('.', 1)[0]
+           filename = secure_filename('.'.join((file_name,file_type)))
+           file_path = os.path.join(current_app.config['USER_RESUME_FOLDER'], current_user.email)
+           if not os.path.exists(file_path):
+               os.makedirs(file_path, 0o755)
+           file.save(os.path.join(file_path, filename))
+           #存储用户logo的文件位置
+           user.resume_url = '/static/resume/' + current_user.email + '/' + filename
+           db.session.add(user)
+           db.session.commit()
+           flash(u'上传用户pdf简历成功','success')
+           return redirect(url_for('user.resume_attach', user_id=user_id))
+    return render_template('user/resumeAttach.html', user=user, user_id=user_id)
+
+
+#####################################
 
 #用户在线简历查看
 @user.route('/<int:user_id>/resumeonlinesee', methods=['GET', 'POST'])
@@ -138,5 +183,6 @@ def resume_success(user_id):
         error_out = False
     )
     return render_template('user/resumeSuccess.html', user_id=user_id, pagination=pagination)
+
 
 

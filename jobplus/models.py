@@ -49,7 +49,9 @@ class User(Base, UserMixin):
     collect_jobs = db.relationship('Job', secondary=user_job, lazy='subquery', backref=db.backref('users', lazy=True))
     #求职者和简历一对一关系
     resume = db.relationship('Resume', uselist=False)
-    #选择在线简历还是附件简历,1为在线,0为附件
+    #pdf简历存储
+    resume_url = db.Column(db.String(256), default='')
+    #选择在线简历还是附件简历,1为附件,0为在线
     resume_mode = db.Column(db.Integer, default=1)
 
     #密码属性
@@ -207,6 +209,9 @@ class CompanyInfo(Base):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
     #企业对应的job-一对多
     jobs = db.relationship('Job', backref="company_info", lazy="dynamic")
+
+    #查看次数
+    views_count = db.Column(db.Integer, default=0)
 
     @property
     def tag_list(self):

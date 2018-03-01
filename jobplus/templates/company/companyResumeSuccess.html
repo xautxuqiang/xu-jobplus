@@ -9,8 +9,8 @@
         <h4>接收的简历</h4>
         <a href="{{ url_for('company.company_resume', company_id=company_id) }}" class="list-group-item">所有投递</a>
         <a href="{{ url_for('company.company_resume_accept', company_id=company_id) }}" class="list-group-item">已接收</a>
-        <a href="{{ url_for('company.company_resume_reject', company_id=company_id) }}" class="list-group-item">被拒绝</a>
-        <a href="{{ url_for('company.company_resume_success', company_id=company_id) }}" class="list-group-item active">被录取</a>
+        <a href="{{ url_for('company.company_resume_reject', company_id=company_id) }}" class="list-group-item">已拒绝</a>
+        <a href="{{ url_for('company.company_resume_success', company_id=company_id) }}" class="list-group-item active">已录取</a>
       </div>
     </div>
   </div>
@@ -33,7 +33,11 @@
           <div class="job-company-info">
             <h4><a class="job-a" href="{{ url_for('user.userinfo',user_id=delivery.user.id) }}">{{ delivery.user.nickname }}</a></h4>
             <p class="job-p">Email: {{ delivery.user.email }}</p>
-            <a href="#"><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> 查看该求职者简历</button></a>
+            {% if delivery.user.resume_url %}
+              <a href="{{ delivery.user.resume_url }}"><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> 查看该求职者简历</button></a>
+            {% else %}
+              <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> 该用户无简历</button>
+            {% endif %}
           </div>
         </div>
         <div class="col-xs-12 col-md-12 resume-button">

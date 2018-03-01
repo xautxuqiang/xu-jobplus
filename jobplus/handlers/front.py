@@ -8,9 +8,9 @@ front = Blueprint('front', __name__)
 #主页
 @front.route('/')
 def index():
-    newest_companys = CompanyInfo.query.order_by(CompanyInfo.created_at.desc()).limit(8)
-    newest_jobs = Job.query.order_by(Job.created_at.desc()).limit(10)
-    return render_template('index.html', newest_companys=newest_companys, newest_jobs=newest_jobs)
+    hot_companys = CompanyInfo.query.order_by(CompanyInfo.views_count.desc()).limit(8)
+    hot_jobs = Job.query.order_by(Job.views_count.desc()).limit(10)
+    return render_template('index.html', hot_companys=hot_companys, hot_jobs=hot_jobs)
 
 #登录
 @front.route('/login', methods=['GET', 'POST'])

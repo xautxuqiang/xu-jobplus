@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, current_app, redirect, url_for, current_app, flash
+from flask import Blueprint, render_template, request, current_app, redirect, url_for, current_app, flash, abort
 from jobplus.models import CompanyInfo, db, User, Job, Delivery
 from werkzeug.utils import secure_filename
 import os
 from jobplus.forms import CompanyInfoForm, CompanyIntroForm, TeamIntroForm, TagsForm, JobPostForm
+from flask_login import current_user, login_required
 
 company = Blueprint('company', __name__, url_prefix='/company')
 
@@ -22,6 +23,13 @@ def index():
 @company.route('/<int:company_id>')
 def company_detail(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
+    company.views_count += 1
+    try:
+        db.session.add(company)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        flash(u'增加公司被查看次数失败','warning')
     return render_template('company/companyDetail.html', company=company)
 
 #公司在招职位
@@ -48,8 +56,11 @@ def allowed_file(filename):
 
 #修改公司头像
 @company.route('/<int:company_id>/imageedit',methods=['GET','POST'])
+@login_required
 def company_image_edit(company_id):
     user = CompanyInfo.query.get_or_404(company_id).user
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
     if request.method == 'POST':
        if 'file' not in request.files:
            flash(u'没有文件')
@@ -82,8 +93,11 @@ def company_image_edit(company_id):
 
 #修改公司基本信息
 @company.route('/<int:company_id>/basicinfoedit', methods=['GET','POST'])
+@login_required
 def company_info_edit(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
+    if current_user.is_anonymous or current_user.id != company.user.id:
+        abort(404)
     form = CompanyInfoForm(obj=company)
     if form.is_submitted():
         company.company_name = form.company_name.data
@@ -108,8 +122,11 @@ def company_info_edit(company_id):
 
 #公司福利标签
 @company.route('/<int:company_id>/tagsedit', methods=['GET','POST'])
+@login_required
 def company_tags_edit(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
+    if current_user.is_anonymous or current_user.id != company.user.id:
+        abort(404)
     form = TagsForm(obj=company)
     if form.validate_on_submit():
         company.tags = form.tags.data
@@ -126,8 +143,11 @@ def company_tags_edit(company_id):
 
 #修改公司介绍
 @company.route('/<int:company_id>/comintroedit', methods=['GET','POST'])
+@login_required
 def company_intro_edit(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
+    if current_user.is_anonymous or current_user.id != company.user.id:
+        abort(404)
     form = CompanyIntroForm(obj=company)
     if form.validate_on_submit():
         company.company_intro = form.company_intro.data
@@ -145,8 +165,11 @@ def company_intro_edit(company_id):
 
 #修改团队介绍
 @company.route('/<int:company_id>/teamintroedit', methods=['GET','POST'])
+@login_required
 def team_intro_edit(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
+    if current_user.is_anonymous or current_user.id != company.user.id:
+        abort(404)
     form = TeamIntroForm(obj=company)
     if form.validate_on_submit():
         company.team_intro = form.team_intro.data
@@ -165,7 +188,11 @@ def team_intro_edit(company_id):
 
 #发布职位
 @company.route('/<int:company_id>/jobpost', methods=['GET','POST'])
+@login_required
 def job_post(company_id):
+    user = CompanyInfo.query.get_or_404(company_id).user
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
     form = JobPostForm()
     if form.validate_on_submit():
         form.create_job(company_id)
@@ -175,6 +202,7 @@ def job_post(company_id):
 
 #已发布职位
 @company.route('/<int:company_id>/jobposted')
+@login_required
 def job_posted(company_id):
     jobs = CompanyInfo.query.get_or_404(company_id).jobs
     page = request.args.get('page', default=1, type=int)
@@ -183,7 +211,11 @@ def job_posted(company_id):
 
 #修改已发布职位
 @company.route('/<int:company_id>/jobedit/<int:job_id>', methods=['GET','POST'])
+@login_required
 def job_edit(company_id, job_id):
+    user = CompanyInfo.query.get_or_404(company_id).user
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
     job = Job.query.get_or_404(job_id)
     form = JobPostForm(obj=job)
     if form.validate_on_submit():
@@ -194,8 +226,18 @@ def job_edit(company_id, job_id):
 
 #删除已发布职位
 @company.route('/<int:company_id>/jobdelete/<int:job_id>', methods=['GET', 'POST'])
+@login_required
 def job_delete(company_id, job_id):
+    user = CompanyInfo.query.get_or_404(company_id).user
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
     job = Job.query.get_or_404(job_id)
+    #删除job的同时也删除掉这个职位对应的简历投递
+    job_d = Delivery.query.filter_by(job_id=job.id).all()
+    for d in job_d:
+        db.session.delete(d)
+        db.session.commit()
+    #删除相关职位
     try:
         db.session.delete(job)
         db.session.commit()
@@ -210,8 +252,11 @@ def job_delete(company_id, job_id):
 
 #公司接收到的所有简历投递
 @company.route('/<int:company_id>/companyresume', methods=['GET', 'POST'])
+@login_required
 def company_resume(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
+    if current_user.is_anonymous or current_user.id != company.user.id:
+        abort(404)
     page = request.args.get('page', default=1, type=int)
     pagination = Delivery.query.filter_by(company_id=company_id).order_by(Delivery.created_at.desc()).paginate(
         page = page,
@@ -222,8 +267,11 @@ def company_resume(company_id):
 
 #公司拒绝的简历投递
 @company.route('/<int:company_id>/companyresumereject', methods=['GET', 'POST'])
+@login_required
 def company_resume_reject(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
+    if current_user.is_anonymous or current_user.id != company.user.id:
+        abort(404)
     page = request.args.get('page', default=1, type=int)
     pagination = Delivery.query.filter_by(company_id=company_id, status=Delivery.STATUS_REJECT).order_by(Delivery.created_at.desc()).paginate(
         page = page,
@@ -233,8 +281,12 @@ def company_resume_reject(company_id):
     return render_template('company/companyResumeReject.html', company_id=company_id, pagination=pagination)
 
 #拒绝某简历
-@company.route('/<int:company_id>/company/<int:job_id>/job/<int:user_id>/reject', methods=['GET', 'POST'])
+@company.route('/<int:company_id>/job/<int:job_id>/user/<int:user_id>/reject', methods=['GET', 'POST'])
+@login_required
 def company_reject_resume(company_id, job_id, user_id):
+    user = CompanyInfo.query.get_or_404(company_id).user
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
     d = Delivery.query.filter_by(company_id=company_id, job_id=job_id, user_id=user_id).first_or_404()    
     d.status = Delivery.STATUS_REJECT
     try:
@@ -250,6 +302,7 @@ def company_reject_resume(company_id, job_id, user_id):
 
 #公司确认接收的简历投递
 @company.route('/<int:company_id>/companyresumeaccept', methods=['GET', 'POST'])
+@login_required
 def company_resume_accept(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
     page = request.args.get('page', default=1, type=int)
@@ -261,8 +314,11 @@ def company_resume_accept(company_id):
     return render_template('company/companyResumeAccept.html', company_id=company_id, pagination=pagination)
 
 #接收某简历
-@company.route('/<int:company_id>/company/<int:job_id>/job/<int:user_id>/accept', methods=['GET', 'POST'])
+@company.route('/<int:company_id>/job/<int:job_id>/user/<int:user_id>/accept', methods=['GET', 'POST'])
 def company_accept_resume(company_id, job_id, user_id):
+    user = CompanyInfo.query.get_or_404(company_id).user
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
     d = Delivery.query.filter_by(company_id=company_id, job_id=job_id, user_id=user_id).first_or_404()
     d.status = Delivery.STATUS_ACCEPT
     try:
@@ -278,6 +334,7 @@ def company_accept_resume(company_id, job_id, user_id):
 
 #简历成功状态
 @company.route('/<int:company_id>/companyresumesuccess', methods=['GET', 'POST'])
+@login_required
 def company_resume_success(company_id):
     company = CompanyInfo.query.get_or_404(company_id)
     page = request.args.get('page', default=1, type=int)
@@ -290,8 +347,11 @@ def company_resume_success(company_id):
 
 #录取简历
 #接收某简历
-@company.route('/<int:company_id>/company/<int:job_id>/job/<int:user_id>/success', methods=['GET', 'POST'])
+@company.route('/<int:company_id>/job/<int:job_id>/user/<int:user_id>/success', methods=['GET', 'POST'])
 def company_success_resume(company_id, job_id, user_id):
+    user = CompanyInfo.query.get_or_404(company_id).user
+    if current_user.is_anonymous or current_user.id != user.id:
+        abort(404)
     d = Delivery.query.filter_by(company_id=company_id, job_id=job_id, user_id=user_id).first_or_404()
     d.status = Delivery.STATUS_SUCCESS
     try:

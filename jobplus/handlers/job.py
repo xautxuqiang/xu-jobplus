@@ -19,6 +19,13 @@ def index():
 @job.route('/<int:job_id>/jobdetail', methods=['GET','POST'])
 def job_detail(job_id):
     job = Job.query.get_or_404(job_id)
+    job.views_count += 1
+    try:
+        db.session.add(job)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        flash(u'增加职位浏览次数失败', 'warning')
     has_been_delivered = False
     #判断该职位用户是否已经投递
     user = current_user

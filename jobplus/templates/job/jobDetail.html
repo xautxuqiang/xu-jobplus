@@ -57,9 +57,9 @@
   </div>
   <div class="col-xs-12 col-md-3">
     <div class="job-company-logo1">
-      <img width="150px" height="150px" src="{{ job.company_info.logo }}" alt="职位对应的企业logo">
+      <a href="{{ url_for('company.company_detail', company_id=job.company_id) }}"><img width="150px" height="150px" src="{{ job.company_info.logo }}" alt="职位对应的企业logo"></a>
     </div>
-    <h3>{{ job.company_info.company_name }}</h3>
+    <a href="{{ url_for('company.company_detail', company_id=job.company_id) }}"><h3>{{ job.company_info.company_name }}</h3></a>
     <hr>
     <div class="job-company-basicinfo">
         <h5 class="basicinfo-list"><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;&nbsp;{{ job.company_info.field }}</h5>
